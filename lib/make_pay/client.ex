@@ -98,7 +98,8 @@ defmodule MakePay.Client do
   end
 
   @doc false
-  @spec request(t(), atom(), String.t(), nil | binary() | map() | list(), keyword()) :: api_result()
+  @spec request(t(), atom(), String.t(), nil | binary() | map() | list(), keyword()) ::
+          api_result()
   def request(%__MODULE__{} = client, method, path, payload \\ nil, opts \\ []) do
     with {:ok, request} <- build_request(client, method, path, payload),
          {:ok, response} <- execute(client, request, opts) do

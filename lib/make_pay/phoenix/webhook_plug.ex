@@ -47,7 +47,8 @@ defmodule MakePay.Phoenix.WebhookPlug do
     |> response(conn)
   end
 
-  defp dispatch_handler(conn, event, {module, function}) when is_atom(module) and is_atom(function) do
+  defp dispatch_handler(conn, event, {module, function})
+       when is_atom(module) and is_atom(function) do
     response(apply(module, function, [event, conn]), conn)
   end
 
@@ -55,7 +56,10 @@ defmodule MakePay.Phoenix.WebhookPlug do
 
   defp response(:ok, conn), do: json(conn, 200, %{ok: true})
   defp response({:ok, body}, conn), do: json(conn, 200, body)
-  defp response({:error, reason}, conn), do: json(conn, 422, %{ok: false, error: to_string(reason)})
+
+  defp response({:error, reason}, conn),
+    do: json(conn, 422, %{ok: false, error: to_string(reason)})
+
   defp response(%{__struct__: Plug.Conn} = conn, _original_conn), do: conn
   defp response(%{} = body, conn), do: json(conn, 200, body)
   defp response(conn, _original_conn), do: conn

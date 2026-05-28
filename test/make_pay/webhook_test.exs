@@ -11,7 +11,9 @@ defmodule MakePay.WebhookTest do
 
     assert :ok == Webhook.verify(raw_body, header, "whsec_test", now: timestamp)
     assert Webhook.valid?(raw_body, header, "whsec_test", now: timestamp)
-    assert {:ok, %{"id" => "evt_test"}} = Webhook.parse_event(raw_body, header, "whsec_test", now: timestamp)
+
+    assert {:ok, %{"id" => "evt_test"}} =
+             Webhook.parse_event(raw_body, header, "whsec_test", now: timestamp)
   end
 
   test "rejects changed payloads" do

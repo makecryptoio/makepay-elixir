@@ -17,8 +17,12 @@ defmodule MakePay do
   defdelegate new!(opts \\ []), to: Client
 
   @doc "Verifies a MakePay webhook signature."
-  defdelegate verify_webhook(raw_body, signature_header, secret, opts \\ []), to: Webhook, as: :verify
+  defdelegate verify_webhook(raw_body, signature_header, secret, opts \\ []),
+    to: Webhook,
+    as: :verify
 
   @doc "Verifies and decodes a MakePay webhook JSON event."
-  defdelegate parse_webhook(raw_body, signature_header, secret, opts \\ []), to: Webhook, as: :parse_event
+  defdelegate parse_webhook(raw_body, signature_header, secret, opts \\ []),
+    to: Webhook,
+    as: :parse_event
 end

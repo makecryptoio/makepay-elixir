@@ -37,7 +37,8 @@ defmodule MakePay.Webhook do
   end
 
   @doc "Verifies the signature and decodes the JSON event body."
-  @spec parse_event(binary(), binary(), binary(), keyword()) :: {:ok, map()} | {:error, verify_error()}
+  @spec parse_event(binary(), binary(), binary(), keyword()) ::
+          {:ok, map()} | {:error, verify_error()}
   def parse_event(raw_body, signature_header, secret, opts \\ []) do
     with :ok <- verify(raw_body, signature_header, secret, opts),
          {:ok, event} <- Jason.decode(raw_body) do

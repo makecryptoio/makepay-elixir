@@ -21,7 +21,7 @@ defmodule MakePay.Transport.Httpc do
   end
 
   defp httpc_request(_method, url, headers, body) do
-    {String.to_charlist(url), charlist_headers(headers), 'application/json', body || ""}
+    {String.to_charlist(url), charlist_headers(headers), ~c"application/json", body || ""}
   end
 
   defp charlist_headers(headers) do

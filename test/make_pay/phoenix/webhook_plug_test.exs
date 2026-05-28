@@ -5,14 +5,6 @@ defmodule MakePay.Phoenix.WebhookPlugTest do
 
   alias MakePay.Phoenix.WebhookPlug
 
-  @opts WebhookPlug.init(
-          secret: "whsec_test",
-          handler: fn event, conn ->
-            send(self(), {:webhook_event, event})
-            Plug.Conn.assign(conn, :makepay_event_id, event["id"])
-          end
-        )
-
   test "verifies signature and dispatches handler" do
     raw_body = ~s({"id":"evt_test","type":"payment_link.paid"})
     timestamp = 1_700_000_000
@@ -20,8 +12,8 @@ defmodule MakePay.Phoenix.WebhookPlugTest do
 
     conn =
       conn(:post, "/webhooks/makepay", raw_body)
-      |> put_req_header("x-makepay-signature", "t=#{timestamp},v1=#{signature}")
-      |> WebhookPlug.call(Keyword.put(@opts, :tolerance_seconds, 9_999_999_999))
+      |> Plug.Conn.put_req_header("x-makepay-signature", "t=#{timestamp},v1=#{signature}")
+      |> WebhookPlug.call(Keyword.put(opts(), :tolerance_seconds, 9_999_999_999))
 
     assert conn.assigns.makepay_event_id == "evt_test"
     assert_receive {:webhook_event, %{"id" => "evt_test", "type" => "payment_link.paid"}}
@@ -32,11 +24,21 @@ defmodule MakePay.Phoenix.WebhookPlugTest do
 
     conn =
       conn(:post, "/webhooks/makepay", raw_body)
-      |> put_req_header("x-makepay-signature", "t=1700000000,v1=bad")
-      |> WebhookPlug.call(Keyword.put(@opts, :tolerance_seconds, 9_999_999_999))
+      |> Plug.Conn.put_req_header("x-makepay-signature", "t=1700000000,v1=bad")
+      |> WebhookPlug.call(Keyword.put(opts(), :tolerance_seconds, 9_999_999_999))
 
     assert conn.status == 401
     assert conn.resp_body =~ "invalid_signature"
+  end
+
+  defp opts do
+    WebhookPlug.init(
+      secret: "whsec_test",
+      handler: fn event, conn ->
+        send(self(), {:webhook_event, event})
+        Plug.Conn.assign(conn, :makepay_event_id, event["id"])
+      end
+    )
   end
 
   defp signature(raw_body, timestamp) do
